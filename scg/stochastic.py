@@ -48,12 +48,12 @@ class Bernoulli(StochasticPrototype):
     def __init__(self):
         StochasticPrototype.__init__(self)
 
+    #binary image: pixels
     def flow(self, logit=None, batch=1):
         assert logit is not None
 
         shape = tf.shape(logit)
         eps = tf.random_uniform(shape)
-
         return tf.cast(tf.less_equal(eps, tf.sigmoid(logit)), logit.dtype)
 
     def likelihood(self, value, logit=None):

@@ -1,0 +1,13 @@
+From /home/user/anaconda3/envs/tensorflow/lib/python2.7/site-packages/tensorflow/python/util/tf_should_use.py:189: initialize_all_variables (from tensorflow.python.ops.variables) is deprecated and will be removed after 2017-03-02.
+Instructions for updating:
+Use `tf.global_variables_initializer` instead.
+From /home/user/anaconda3/envs/tensorflow/lib/python2.7/site-packages/tensorflow/python/util/tf_should_use.py:189: initialize_all_variables (from tensorflow.python.ops.variables) is deprecated and will be removed after 2017-03-02.
+Instructions for updating:
+Use `tf.global_variables_initializer` instead.
+epoch 0, batch 121  -165.28 -143.24 -140.84 -140.29 -140.86 -140.28 -141.13 -139.42 -141.28 -140.63
+time for epoch: 22.852548
+From /home/user/anaconda3/envs/tensorflow/lib/python2.7/site-packages/tensorflow/python/util/tf_should_use.py:189: initialize_all_variables (from tensorflow.python.ops.variables) is deprecated and will be removed after 2017-03-02.
+Instructions for updating:
+Use `tf.global_variables_initializer` instead.
+epoch 0, batch 121  -165.28 -143.24 -140.84 -140.29 -140.86 -140.28 -141.13 -139.42 -141.28 -140.63
+time for epoch: 23.380355

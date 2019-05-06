@@ -11,38 +11,48 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 from matplotlib import gridspec
+import ast
 
 import scg
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--episode', type=int, default=10)
-parser.add_argument('--checkpoint', type=str, default=None)
-parser.add_argument('--hidden-dim', type=int, default=50)
+parser.add_argument('--checkpoint', type=str, default='GMN/gmn.ckpt')
+parser.add_argument('--hidden_dim', type=int, default=50)
 parser.add_argument('--test', type=int, default=None)
 parser.add_argument('--classification', type=int, default=None)
-parser.add_argument('--max-classes', type=int, default=2)
-parser.add_argument('--test-episodes', type=int, default=1000)
-parser.add_argument('--reconstructions', action='store_const', const=True)
+parser.add_argument('--max_classes', type=int, default=2)
+parser.add_argument('--test_episodes', type=int, default=10)
+# parser.add_argument('--reconstructions', action='store_const', const=True)
+parser.add_argument('--reconstructions', type= ast.literal_eval)
+
 parser.add_argument('--generate', type=int, default=None)
-parser.add_argument('--test-dataset', type=str, default='data/test_small.npz')
-parser.add_argument('--train-dataset', type=str, default='data/train_small.npz')
-parser.add_argument('--batch', type=int, default=20)
+parser.add_argument('--test_dataset', type=str, default='data/test_small.npz')
+parser.add_argument('--train_dataset', type=str, default='data/train_small.npz')
+parser.add_argument('--batch', type=int, default=256)
 parser.add_argument('--seed', type=int, default=123)
 parser.add_argument('--l2', type=float, default=0.)
-parser.add_argument('--prior-hops', type=int, default=1)
+parser.add_argument('--prior_hops', type=int, default=1)
 parser.add_argument('--hops', type=int, default=1)
 parser.add_argument('--shots', type=int, default=1)
-parser.add_argument('--likelihood-classification', type=int, default=None)
-parser.add_argument('--no-dummy', action='store_const', const=True)
+parser.add_argument('--likelihood_classification', type=int, default=None)
+# parser.add_argument('--no_dummy', action='store_const', const=True)
+parser.add_argument('--no_dummy', type= ast.literal_eval)
 parser.add_argument('--classes', type=str, default=None)
-parser.add_argument('--conditional', action='store_const', const=True)
-parser.add_argument('--prior-entropy', action='store_const', const=True)
+# parser.add_argument('--conditional', action='store_const', const=True)
+# parser.add_argument('--prior_entropy', action='store_const', const=True)
+
+parser.add_argument('--conditional',type= ast.literal_eval)
+parser.add_argument('--prior_entropy', type= ast.literal_eval)
+
 
 
 args = parser.parse_args()
 
 tf.set_random_seed(args.seed)
 np.random.seed(args.seed)
+
+print(args.reconstructions,args.no_dummy,args.conditional,args.prior_entropy)
 
 if args.classification is not None:
     args.batch = args.max_classes
@@ -67,6 +77,11 @@ data_dim = 28*28
 episode_length = args.episode
 
 
+'''
+generation:
+1. latent variables
+2. generated images
+'''
 class GenerativeModel:
     def __init__(self, hidden_dim, state_dim):
         self.hidden_dim = hidden_dim
@@ -83,13 +98,17 @@ class GenerativeModel:
         self.conv = scg.Convolution2d([28, 28, 16], [1, 1], 1, padding='VALID',
                                       init=scg.he_normal)
 
+    ## mu and sigma is from state, which is from feature
+    ## hidden_name: latent variable [z_0.z_9] for each image
     def generate_prior(self, state, hidden_name):
         hp = self.hp(input=state)
         z = self.prior(name=hidden_name, mu=self.mu(input=hp, name=hidden_name + '_prior_mu'),
                        pre_sigma=self.pre_sigma(input=hp, name=hidden_name + '_prior_sigma'))
-
         return z
 
+    ## z is sampleed from normal distribution
+    ## param is from response and state
+    ## observed_name: generated image for observed images[x_0.x_9]
     def generate(self, z, param, observed_name):
         h = self.h0(input=scg.concat([z, param]))
         h = self.h1(h)
@@ -97,10 +116,13 @@ class GenerativeModel:
         h = self.h3(h)
 
         h = self.conv(input=h, name=observed_name + '_logit')
-
         return scg.Bernoulli()(logit=h, name=observed_name)
 
-
+'''
+recognition:
+1. generated feature
+2. generated z a normal distribution
+'''
 class RecognitionModel:
     def __init__(self, hidden_dim, state_dim):
         self.hidden_dim = hidden_dim
@@ -174,7 +196,10 @@ class VAE(object):
         self.x = [None] * (episode_length+1)
 
         # allocating observations
-
+        '''
+        1.self.obs: input_data
+        2.self.feature
+        '''
         self.obs = [None] * episode_length
         for t in xrange(episode_length):
             current_data = input_data[:, t, :]
@@ -197,10 +222,16 @@ class VAE(object):
                 def rec_strength(state):
                     return self._rec_strength(input=state)
 
+                ##core code for GRU
+                ## input: features
+                ## output: response (256, 288) and state (256, 200) for recognition model
                 rec_response, rec_state = self.set_repr.recognize(self.features, timestep, rec_query,
                                                                   self.num_steps, strength=rec_strength,
                                                                   dummy=dummy)
+                
 
+                ##recognition model to check normal distribtion z
+                ##input:features, response, state
                 self.z[timestep] = self.rec.recognize(self.features[timestep], scg.concat([rec_response, rec_state]),
                                                       VAE.hidden_name(timestep))
 
@@ -213,6 +244,8 @@ class VAE(object):
         def prior_strength(state):
             return self._prior_strength(input=state)
 
+        ## core code for GRU
+        ## generating responce(256, 288) and state(256, 200)
         prior_response, prior_state = self.prior_repr.recognize(self.features, timestep, prior_query, self.prior_steps,
                                                                 strength=prior_strength, dummy=dummy)
 
@@ -224,12 +257,17 @@ class VAE(object):
         def gen_strength(state):
             return self._gen_strength(input=state)
 
+        ## core code for GRU
+        ## generate respnce (256, 288) and state(256, 200) for generated image
         gen_response, gen_state = self.set_repr.recognize(self.features, timestep, gen_query,
                                                           self.num_steps, strength=gen_strength,
                                                           dummy=dummy)
         return self.gen.generate(z_prior, scg.concat([gen_response, gen_state]), VAE.observed_name(timestep))
 
     def sample(self, cache=None):
+        # genrating z and x
+        # z[i]: (20, 50)
+        # x[i]: (20, 784)
         if cache is None:
             cache = {}
         for i in xrange(episode_length):
@@ -239,17 +277,31 @@ class VAE(object):
             print i, time.time() - time_start
         return cache
 
+    ## ll: likelihood
+    ## generation: observer name and hidden name
+    ## recognition: hidden name
+    ## if integrating gan, may insert into this to optimize the model
     def importance_weights(self, cache):
+        #generating: z and x
+        #recognition: z
         gen_ll = {}
         rec_ll = {}
 
         # w[t][i] -- likelihood ratio for the i-th object after t objects has been seen
         w = [0.] * episode_length
 
+        ## calculating likelihood of generated z[i] and x[i]
         for i in xrange(episode_length):
+            # each samples 
+            # z[i] corresponding to likelihood
+            # x[i] corresponding to likelihood
             scg.likelihood(self.z[i], cache, rec_ll)
             scg.likelihood(self.x[i], cache, gen_ll)
 
+            # VAE.observed_name(i):x_0, ... , x_9, generated x
+            # VAE.hidden_name(i):z_0, ... , z_9
+            ## generator: the likelihood larger, the better
+            ## recognition: the likelihood smaller, the better
             w[i] = gen_ll[VAE.observed_name(i)] + gen_ll[VAE.hidden_name(i)] - rec_ll[VAE.hidden_name(i)]
 
         w = tf.stack(w)
@@ -267,9 +319,14 @@ input_data = data_queue.dequeue_many(batch_size)
 with tf.variable_scope('model'):
     vae = VAE(input_data, args.hidden_dim, GenerativeModel, RecognitionModel)
 train_samples = vae.sample(None)
+
+# loss and likelihood from generator and recognition model
 weights, ll = vae.importance_weights(train_samples)
 
 
+# loss calculation
+# measuring the hidden latent variables
+# another calculation method
 def effective_sample_size(gen_ll, rec_ll):
     w = []
     for t in xrange(episode_length):
@@ -280,10 +337,11 @@ def effective_sample_size(gen_ll, rec_ll):
     adjusted_w = w - max_w
     exp_w = tf.exp(adjusted_w)
     ess = tf.square(tf.reduce_sum(exp_w, 0)) / tf.reduce_sum(tf.square(exp_w), 0)
-
     return ess
 
 
+# entropy calculation method
+# another calculation method
 def entropy(samples):
     result = []
     for t in xrange(episode_length):
@@ -293,10 +351,17 @@ def entropy(samples):
         # result.append(tf.reduce_mean(sigma))
     return tf.stack(result)
 
+
+## calculate other evaluation metric from the total loss
+## train_pred_lb: mean value of loss for each training samples
+## train_pred_ll: log mean, another calculation method
+## prior_entropy: generated the latent z and z is from recogniton model, measuring the difference of sigma
 train_pred_lb = predictive_lb(weights)
 train_pred_ll = predictive_ll(weights)
 prior_entropy = entropy(train_samples)
 
+
+## lower_bound: why start from???
 vlb_gen = lower_bound(weights, start_from)
 
 global_step = tf.Variable(0, trainable=False)
@@ -305,12 +370,19 @@ learning_rate = tf.placeholder(tf.float32)
 epoch_passed = tf.Variable(0)
 increment_passed = epoch_passed.assign_add(1)
 
+
+## regulization for all trainable parameters
 reg = 0.
 for var in tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='model'):
     reg += tf.reduce_sum(tf.square(var))
 
+
+
+## optimization: lower_bound and regularization
+## objective: lower_bound + regularizor
 train_objective = -vlb_gen + args.l2 * reg
 
+## make sure the optimization objects
 train_op = tf.train.AdamOptimizer(beta2=0.99, epsilon=1e-8, learning_rate=learning_rate,
                                   use_locking=False).minimize(train_objective, global_step)
 
@@ -323,7 +395,9 @@ with tf.Session() as sess:
         log.addHandler(logging.FileHandler(args.checkpoint + '.log'))
 
     def data_loop(coordinator=None):
+        # train_data: (964, 20, 784), 964 is classes, 20 is the number of samples in each category
         train_data = load_data(args.train_dataset) if not args.reconstructions else load_data(args.test_dataset)
+        # batch: (1, 10, 784) 
         batch = np.zeros((1, episode_length, data_dim))
         # test_data = np.load('data/test_small.npz')
 
@@ -331,21 +405,29 @@ with tf.Session() as sess:
             put_new_data(train_data, batch, args.max_classes, conditional=args.conditional)
             sess.run(enqueue_op, feed_dict={new_data: batch})
 
+    # Thread management, close or open
     coord = tf.train.Coordinator()
-    if args.checkpoint is not None and os.path.exists(args.checkpoint):
+
+
+
+    if args.checkpoint is not None:
         print 'checkpoint found, restoring'
         saver.restore(sess, args.checkpoint)
     else:
         print 'starting from scratch'
         sess.run(tf.initialize_all_variables())
 
+
     data_threads = [Thread(target=data_loop, args=[coord]) for i in xrange(1)]
 
+    ## if not testing model: t.start()
     if args.test is None and args.generate is None and args.classification is None and args.likelihood_classification is None:
         for t in data_threads:
             t.start()
 
 
+    ## the evaluation metric is the average loss: weights is from the genration model and recognition model
+    ## each test_episodes has output: refer to the math equation in paper
     def test(full=False):
         test_data = load_data(args.test_dataset)
         avg_predictive_ll = np.zeros(episode_length)
@@ -354,7 +436,10 @@ with tf.Session() as sess:
         target = train_pred_lb if not full else train_pred_ll
         if args.prior_entropy:
             target = prior_entropy
+        ## 1000 samples
 
+        ##'full' means test images whether belong to same category,'full' is 
+        ## 'full' means that each batch size is same
         for j in xrange(args.test_episodes):
             if full:
                 put_new_data(test_data, batch_data[:1, :, :], args.max_classes, conditional=args.conditional)
@@ -363,8 +448,12 @@ with tf.Session() as sess:
             else:
                 put_new_data(test_data, batch_data[:, :, :], args.max_classes, conditional=args.conditional)
 
+            ## calculating entropy
+            ## direct calculating without training
+            ## calculating the average loss
             pred_ll = sess.run(target, feed_dict={input_data: batch_data})
             avg_predictive_ll += (pred_ll - avg_predictive_ll) / (j+1)
+            print('each test_episodes')
 
             msg = '\rtesting %d' % j
             if args.prior_entropy:
@@ -379,13 +468,22 @@ with tf.Session() as sess:
     num_epochs = 0
     done_epochs = epoch_passed.eval(sess)
 
+
+    ## new images is fed into trainde model to calculate the loss value of test images
     if args.test is not None:
+        print('1111')
+        # same category
         test(full=True)
 
-        coord.request_stop()
-        # coord.join(data_threads)
+        # coord.request_stop()
+        coord.join(data_threads)
         sys.exit()
+
+    ### reconstruction: train-samples
+    ### reconstruction image from the generator for trained images
+    ### not feed new test images
     elif args.reconstructions:
+        print('2222')
         reconstructions = [None] * episode_length
         for i in xrange(episode_length):
             reconstructions[i] = tf.sigmoid(train_samples[VAE.observed_name(i) + '_logit'][0, :])
@@ -400,10 +498,14 @@ with tf.Session() as sess:
             plt.show()
             plt.close()
 
-        coord.request_stop()
-        # coord.join(data_threads)
+        # coord.request_stop()
+        coord.join(data_threads)
         sys.exit()
+
+    ## generating img based on input image
+    ## new test images as input
     elif args.generate is not None:
+        print('3333')
         train_samples.clear()
         for t in xrange(episode_length+1):
             if t < episode_length:
@@ -414,6 +516,7 @@ with tf.Session() as sess:
         data = load_data(args.test_dataset)
         input_batch = np.zeros([batch_size, episode_length, data_dim])
 
+        ##generated images with new testing images as input
         logits = []
         for t in xrange(episode_length+1):
             logits.append(tf.sigmoid(train_samples[VAE.observed_name(t) + '_logit']))
@@ -460,10 +563,13 @@ with tf.Session() as sess:
             plt.show()
             plt.close()
 
-        coord.request_stop()
-        # coord.join(data_threads)
+        # coord.request_stop()
+        coord.join(data_threads)
         sys.exit()
+
+    ##calculating the accuracy of classification
     elif args.classification is not None:
+        print('4444')
         mu = []
         for t in xrange(episode_length):
             mu.append(train_samples[VAE.hidden_name(t) + '_mu'])
@@ -495,13 +601,16 @@ with tf.Session() as sess:
                                            compute_similarities, k_neighbours=args.classification,
                                            num_episodes=args.test_episodes)
 
-        print
+
         log.info('accuracy: %f' % accuracy)
 
-        coord.request_stop()
-        # coord.join(data_threads)
+        # coord.request_stop()
+        coord.join(data_threads)
         sys.exit()
+
+    ## likelihood
     elif args.likelihood_classification is not None:
+        print('5555')
         test_data = load_data(args.test_dataset)
         # prediction = likelihood_classification(weights[-1], args.max_classes,
         #                                        args.likelihood_classification)
@@ -520,6 +629,7 @@ with tf.Session() as sess:
     avg_pred_lb = np.zeros(episode_length)
 
     for epochs, lr in zip([250, 250, 250], [1e-3, 3e-4, 1e-4]):
+    # for epochs, lr in zip([10], [1e-3]):
         for epoch in xrange(epochs):
             if num_epochs < done_epochs:
                 num_epochs += 1
@@ -551,5 +661,5 @@ with tf.Session() as sess:
             if epoch % 20 == 0 and epoch > 0:
                 test()
 
-    coord.request_stop()
-    # coord.join(data_threads)
+    # coord.request_stop()
+    coord.join(data_threads)
