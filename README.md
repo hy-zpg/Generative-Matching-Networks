@@ -1,0 +1,2 @@
+1. this repo is modified base on [gmn](https://github.com/sbos/gmn)
+2. I am planning to integrate GAN into this project, and leveraging mathcing networks to generate latent varibles or encode support images for few-shot image generation.
