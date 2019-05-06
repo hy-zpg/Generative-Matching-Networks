@@ -5,8 +5,8 @@ python one_shot.py --test=1 --reconstructions=False --no_dummy=False --condition
 ### experimental results
 
 
-* test: calculating the total loss from the genrative model and recognition model
-episode                   average predictive likelihood of 10 samples
+* test: calculating the total loss from the genrative model and recognition model \\
+episode                   average predictive likelihood of 10 samples \\
 testing 0 -211.22 -182.05 -161.47 -170.08 -141.03 -121.17 -133.89 -176.56 -162.87 -119.77
 testing 1 -175.24 -165.74 -135.59 -136.54 -118.61 -116.54 -149.73 -152.94 -127.44 -124.37
 testing 2 -132.97 -129.49 -112.44 -109.74 -97.30 -96.32 -120.75 -138.11 -105.69 -100.18
@@ -18,8 +18,9 @@ testing 7 -99.06 -105.48 -97.22 -116.65 -76.38 -84.22 -106.61 -112.35 -81.87 -86
 testing 8 -105.18 -108.89 -98.73 -121.50 -81.31 -85.71 -105.25 -119.93 -99.38 -92.86
 testing 9 -101.14 -104.60 -94.85 -114.47 -79.35 -91.25 -103.17 -112.57 -95.26 -98.86
 
+\\
 
-episode                entropy of latent variables z for 10 training samples
+episode                entropy of latent variables z for 10 training samples \\
 entropy 0 2540.05 2592.36 2612.57 2611.59 2638.88 2630.10 2625.30 2622.07 2623.65 2621.29
 entropy 1 2540.05 2555.04 2565.92 2559.50 2565.68 2548.38 2546.56 2541.19 2535.13 2532.97
 entropy 2 2540.05 2523.61 2518.70 2516.92 2518.57 2501.61 2498.84 2493.59 2492.44 2490.82
