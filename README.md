@@ -2,10 +2,14 @@
 2. I am planning to integrate GAN into this project, and leveraging mathcing networks to generate latent varibles or encode support images for few-shot image generation.
 3. script:
 python one_shot.py --test=1 --reconstructions=False --no_dummy=False --conditional=False --prior_entropy=True
+
+python one_shot.py --generate=4 --reconstructions=False --no_dummy=False --conditional=False --prior_entropy=False
+
 ### experimental results
 
 
-* test: calculating the total loss from the genrative model and recognition model \\
+#### test-likelihood
+calculating the total loss from the genrative model and recognition model \\
 episode                   average predictive likelihood of 10 samples \\
 testing 0 -211.22 -182.05 -161.47 -170.08 -141.03 -121.17 -133.89 -176.56 -162.87 -119.77
 testing 1 -175.24 -165.74 -135.59 -136.54 -118.61 -116.54 -149.73 -152.94 -127.44 -124.37
@@ -33,27 +37,19 @@ entropy 8 2540.05 2525.60 2509.01 2493.94 2496.58 2482.80 2474.22 2469.67 2467.0
 entropy 9 2540.05 2523.77 2504.10 2487.71 2489.25 2476.37 2471.19 2467.00 2463.82 2458.69
 
 
-* reconstruction: reconstructing images based on trained samples (measuring intermediate generation results)
-![avatar](/media/user/05e85ab6-e43e-4f2a-bc7b-fad887cfe312/meta_gan/Generative-Matching-Networks/GMN/images/constructed/Figure_1.png)
-![avatar](/media/user/05e85ab6-e43e-4f2a-bc7b-fad887cfe312/meta_gan/Generative-Matching-Networks/GMN/images/constructed/Figure_1-1.png)
-![avatar](/media/user/05e85ab6-e43e-4f2a-bc7b-fad887cfe312/meta_gan/Generative-Matching-Networks/GMN/images/constructed/Figure_1-2.png)
-![avatar](/media/user/05e85ab6-e43e-4f2a-bc7b-fad887cfe312/meta_gan/Generative-Matching-Networks/GMN/images/constructed/Figure_1-3.png)
-![avatar](/media/user/05e85ab6-e43e-4f2a-bc7b-fad887cfe312/meta_gan/Generative-Matching-Networks/GMN/images/constructed/Figure_1-4.png)
-![avatar](/media/user/05e85ab6-e43e-4f2a-bc7b-fad887cfe312/meta_gan/Generative-Matching-Networks/GMN/images/constructed/Figure_1-5.png)
-![avatar](/media/user/05e85ab6-e43e-4f2a-bc7b-fad887cfe312/meta_gan/Generative-Matching-Networks/GMN/images/constructed/Figure_1-6.png)
-![avatar](/media/user/05e85ab6-e43e-4f2a-bc7b-fad887cfe312/meta_gan/Generative-Matching-Networks/GMN/images/constructed/Figure_1-7.png)
+#### reconstruction: during trianing
+reconstructing images based on trained samples (measuring intermediate generation results)
+![avatar](/GMN/images/constructed/Figure_1.png)
+![avatar](/GMN/images/constructed/Figure_1-1.png)
+![avatar](/GMN/images/constructed/Figure_1-2.png)
 
-* generation: fedding test set, generated new image without training
-![avatar](/media/user/05e85ab6-e43e-4f2a-bc7b-fad887cfe312/meta_gan/Generative-Matching-Networks/GMN/images/generated/Figure_1.png)
-![avatar](/media/user/05e85ab6-e43e-4f2a-bc7b-fad887cfe312/meta_gan/Generative-Matching-Networks/GMN/images/generated/Figure_1-1.png)
-![avatar](/media/user/05e85ab6-e43e-4f2a-bc7b-fad887cfe312/meta_gan/Generative-Matching-Networks/GMN/images/generated/Figure_1-2.png)
-![avatar](/media/user/05e85ab6-e43e-4f2a-bc7b-fad887cfe312/meta_gan/Generative-Matching-Networks/GMN/images/generated/Figure_1-3.png)
-![avatar](/media/user/05e85ab6-e43e-4f2a-bc7b-fad887cfe312/meta_gan/Generative-Matching-Networks/GMN/images/generated/Figure_1-4.png)
-![avatar](/media/user/05e85ab6-e43e-4f2a-bc7b-fad887cfe312/meta_gan/Generative-Matching-Networks/GMN/images/generated/Figure_1-5.png)
-![avatar](/media/user/05e85ab6-e43e-4f2a-bc7b-fad887cfe312/meta_gan/Generative-Matching-Networks/GMN/images/generated/Figure_1-6.png)
-![avatar](/media/user/05e85ab6-e43e-4f2a-bc7b-fad887cfe312/meta_gan/Generative-Matching-Networks/GMN/images/generated/Figure_1-7.png)
-![avatar](/media/user/05e85ab6-e43e-4f2a-bc7b-fad887cfe312/meta_gan/Generative-Matching-Networks/GMN/images/generated/Figure_1-8.png)
-![avatar](/media/user/05e85ab6-e43e-4f2a-bc7b-fad887cfe312/meta_gan/Generative-Matching-Networks/GMN/images/generated/Figure_1-9.png)
+
+#### generation: generative model
+fedding test set, generated new image without training
+![avatar](/GMN/images/generated/Figure_1.png)
+![avatar](/GMN/images/generated/Figure_1-1.png)
+![avatar](/GMN/images/generated/Figure_1-2.png)
+
 
 * classification
 accuracy: 0.850000
