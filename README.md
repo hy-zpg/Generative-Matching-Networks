@@ -61,7 +61,9 @@ entropy 9 2540.05 2523.77 2504.10 2487.71 2489.25 2476.37 2471.19 2467.00 2463.8
 
 
 * classification
-accuracy: 0.850000
+accuracy: 0.850000   
+compaed wth original matching networks [Matching Networks for One Shot Learning](http://papers.nips.cc/paper/6385-matching-networks-for-one-shot-learning.pdf): 5-way-5-shot (60%)
+but ,setting is different.
 
 * likelihood-classification
 accuracy: 0.650000
