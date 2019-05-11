@@ -61,9 +61,11 @@ entropy 9 2540.05 2523.77 2504.10 2487.71 2489.25 2476.37 2471.19 2467.00 2463.8
 
 
 * classification
-accuracy: 0.850000   
-compaed wth original matching networks [Matching Networks for One Shot Learning](http://papers.nips.cc/paper/6385-matching-networks-for-one-shot-learning.pdf): 5-way-5-shot (60%)
+accuracy: 0.850000  
+in generaton model: since it belongs to generative probelm can calculating $p(x|X_c)$ whcin can be regarded as score for assigning label $c$ to $x$.
+compared wth original matching networks [Matching Networks for One Shot Learning](http://papers.nips.cc/paper/6385-matching-networks-for-one-shot-learning.pdf): 5-way-5-shot (60%)
 but ,setting is different.
 
 * likelihood-classification
 accuracy: 0.650000
+in recognition model: extracting features of new image $x$, calculating similarity between $x$ and $X$ as classification score.
