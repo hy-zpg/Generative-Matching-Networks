@@ -1697,3 +1697,4 @@ time for epoch: 2.083615
 time for epoch: 1.914234
 epoch 249, batch 6862  -53.43 -52.91 -52.63 -52.31 -52.30 -51.84 -51.99 -51.84 -51.88 -51.91
 time for epoch: 2.186149
+Restoring parameters from GMN/gmn.ckpt
