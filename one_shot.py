@@ -274,6 +274,7 @@ class VAE(object):
             time_start = time.time()
             self.z[i].backtrace(cache)
             self.x[i].backtrace(cache)
+            print(self.z[i].backtrace(),self.x[i].backtrace())
             print i, time.time() - time_start
         return cache
 
@@ -655,10 +656,10 @@ with tf.Session() as sess:
             log.debug('time for epoch: %f', (time.time() - epoch_started))
 
             sess.run(increment_passed)
-            if epoch % 30 == 0 and args.checkpoint is not None:
+            if epoch % 5 == 0 and args.checkpoint is not None:
                 saver.save(sess, args.checkpoint)
 
-            if epoch % 20 == 0 and epoch > 0:
+            if epoch % 5 == 0 and epoch > 0:
                 test()
 
     # coord.request_stop()
