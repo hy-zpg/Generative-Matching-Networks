@@ -56,7 +56,7 @@ entropy 9 2540.05 2523.77 2504.10 2487.71 2489.25 2476.37 2471.19 2467.00 2463.8
 <div align="center">
 <img src="/GMN/images/generated/Figure_1.png" height="600px" alt="generated_1" >
 <img src="/GMN/images/generated/Figure_1-1.png" height="600px" alt="generated_2" >
-<img src="/GMN/images/generated/Figure_1-2.png" height="600px" alt="generated_3" >
+#<img src="/GMN/images/generated/Figure_1-2.png" height="600px" alt="generated_3" >
 </div>
 <center>fedding test set, generated new image without training</center>
 
