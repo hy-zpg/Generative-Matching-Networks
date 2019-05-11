@@ -40,9 +40,9 @@ entropy 9 2540.05 2523.77 2504.10 2487.71 2489.25 2476.37 2471.19 2467.00 2463.8
 #### reconstruction: during trianing
  
 <div align="center">
-<img src="/GMN/images/constructed/Figure_1.png" height="700px" alt="constructed_1" >
-<img src="/GMN/images/constructed/Figure_1-1.png" height="700px" alt="constructed_2" >
-<img src="/GMN/images/constructed/Figure_1-2.png" height="700px" alt="constructed_3" >
+<img src="/GMN/images/constructed/Figure_1.png" height="600px" alt="constructed_1" >
+<img src="/GMN/images/constructed/Figure_1-1.png" height="600px" alt="constructed_2" >
+<img src="/GMN/images/constructed/Figure_1-2.png" height="600px" alt="constructed_3" >
 </div>
 <center>reconstructing images based on trained samples (measuring intermediate generation results) </center>
 
@@ -54,9 +54,9 @@ entropy 9 2540.05 2523.77 2504.10 2487.71 2489.25 2476.37 2471.19 2467.00 2463.8
 #### generation: generative model
 
 <div align="center">
-<img src="/GMN/images/generated/Figure_1.png" height="700px" alt="generated_1" >
-<img src="/GMN/images/generated/Figure_1-1.png" height="700px" alt="generated_2" >
-<img src="/GMN/images/generated/Figure_1-2.png" height="700px" alt="generated_3" >
+<img src="/GMN/images/generated/Figure_1.png" height="600px" alt="generated_1" >
+<img src="/GMN/images/generated/Figure_1-1.png" height="600px" alt="generated_2" >
+<img src="/GMN/images/generated/Figure_1-2.png" height="600px" alt="generated_3" >
 </div>
 <center>fedding test set, generated new image without training</center>
 
